@@ -1,5 +1,8 @@
-use petgraph::graphmap::DiGraphMap;
+use std::fs::File;
+use std::io::{Write, ErrorKind};
 
+use petgraph::graphmap::DiGraphMap;
+use serde::Deserialize;
 
 pub fn compute_next(number: u64) -> u64{
     if number <= 1 {return 1;};
@@ -18,6 +21,12 @@ impl Default for MemoizedCollatz {
     fn default() -> Self {
         MemoizedCollatz{memory: DiGraphMap::new()}
     }
+}
+
+#[derive(Deserialize, Debug)]
+struct Edge {
+    a: u64,
+    b: u64,
 }
 
 impl MemoizedCollatz {
@@ -45,5 +54,30 @@ impl MemoizedCollatz {
         }
         path_length
     }
-}
 
+    pub fn to_file(&self, path: &str) {
+        let mut out_file = File::create(path).unwrap_or_else(|error| {
+            if error.kind() == ErrorKind::NotFound {
+                File::create(path).unwrap_or_else(|error| {
+                    panic!("Problem creating the file: {:?}", error);
+                })
+            } else {
+                panic!("Problem opening the file: {:?}", error);
+            }
+        });
+        writeln!(&mut out_file, "a,b").unwrap();
+        for (a, b, _weight) in self.memory.all_edges() {
+            writeln!(&mut out_file, "{},{}", a, b).unwrap();
+        }
+    }
+
+    pub fn from_file(path: &str) -> MemoizedCollatz{
+        let mut reader = csv::Reader::from_path(path).unwrap();
+        let mut edges: Vec<(u64, u64)> = Vec::new();
+        for record in reader.deserialize() {
+            let record: Edge = record.unwrap();
+            edges.push((record.a, record.b));
+        }
+        MemoizedCollatz{memory: DiGraphMap::from_edges(edges.iter())}
+    }
+}

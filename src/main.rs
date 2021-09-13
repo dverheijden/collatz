@@ -1,4 +1,5 @@
 use std::io;
+use std::path::Path;
 use std::num;
 use structopt::StructOpt;
 
@@ -17,15 +18,24 @@ fn get_number() -> Result<u64, num::ParseIntError> {
     Ok(guess)
 }
 
-#[derive(Debug)]
 #[derive(StructOpt)]
 struct Opt {
+    #[structopt(short = "f", long)]
+    graph_filepath: String,
     integers: Vec<u64>
 }
 
 fn main() {
     let opt = Opt::from_args();
-    println!("Args: {:#?}", opt);
+    let mut memoized_collatz;
+    if Path::new(&opt.graph_filepath).exists() {
+        println!("Loading graph file");
+        memoized_collatz = MemoizedCollatz::from_file(&opt.graph_filepath);
+    } else {
+        println!("Creating graph from scratch");
+        memoized_collatz = MemoizedCollatz::default();
+    }
+
     let numbers: Vec<u64>;
     if !opt.integers.is_empty() {
         numbers = opt.integers;
@@ -33,11 +43,11 @@ fn main() {
         numbers = [get_number().unwrap()].to_vec();
     }
 
-    let mut memoized_collatz = MemoizedCollatz::default();
-
     for number in numbers.iter() {
         println!("Finding path length for '{}'", {number});
         let path_length = memoized_collatz.get_path_length(*number);
         println!("Path length is '{}'", {path_length});
     }
+
+    memoized_collatz.to_file(&opt.graph_filepath);
 }
