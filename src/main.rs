@@ -19,13 +19,8 @@ fn get_number() -> Result<u64, num::ParseIntError> {
 fn main() {
     let mut memoized_collatz = MemoizedCollatz::default();
 
-    let mut number = get_number().unwrap();
+    let number = get_number().unwrap();
     println!("Finding path length for '{}'", {number});
-
-    let mut path_length = 0;
-    while number != 1 {
-        number = memoized_collatz.get_next(number);
-        path_length += 1;
-    }
+    let path_length = memoized_collatz.get_path_length(number);
     println!("Path length is '{}'", {path_length});
 }

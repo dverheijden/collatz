@@ -37,8 +37,13 @@ impl MemoizedCollatz {
         }
     }
 
-    pub fn get_path_length(&self, number: u64) -> u64 {
-        number
+    pub fn get_path_length(&mut self, mut number: u64) -> u64 {
+        let mut path_length = 0;
+        while number != 1 {
+            number = self.get_next(number);
+            path_length += 1;
+        }
+        path_length
     }
 }
 
