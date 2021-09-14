@@ -1,6 +1,8 @@
 use std::io;
 use std::path::Path;
 use std::num;
+
+use indicatif::ProgressBar;
 use structopt::StructOpt;
 
 mod collatz;
@@ -25,6 +27,36 @@ struct Opt {
     integers: Vec<u64>
 }
 
+fn interative(mut integers: Vec<u64>, mut collatz: MemoizedCollatz) -> MemoizedCollatz {
+    if integers.is_empty() {
+        integers = [get_number().unwrap()].to_vec();
+    }
+
+    for number in integers.iter() {
+        println!("Finding path length for '{}'", {number});
+        let path_length = collatz.get_path_length(*number);
+        println!("Path length is '{}'", {path_length});
+    }
+    collatz
+}
+
+fn euler(mut collatz: MemoizedCollatz) -> MemoizedCollatz {
+    let mut max_path_length = 0;
+    let mut number_which_produces_largest_path = 0;
+    let progress_bar = ProgressBar::new(1000000);
+    for number in 0..1000000 {
+        let path_length = collatz.get_path_length(number);
+        if path_length > max_path_length {
+            max_path_length = path_length;
+            number_which_produces_largest_path = number;
+        }
+        progress_bar.inc(1);
+    }
+    progress_bar.finish();
+    println!("Largest path: {}\nNumber which produced it:{}", max_path_length, number_which_produces_largest_path);
+    collatz
+}
+
 fn main() {
     let opt = Opt::from_args();
     let mut memoized_collatz;
@@ -36,17 +68,10 @@ fn main() {
         memoized_collatz = MemoizedCollatz::default();
     }
 
-    let numbers: Vec<u64>;
     if !opt.integers.is_empty() {
-        numbers = opt.integers;
+        memoized_collatz = interative(opt.integers, memoized_collatz);
     } else {
-        numbers = [get_number().unwrap()].to_vec();
-    }
-
-    for number in numbers.iter() {
-        println!("Finding path length for '{}'", {number});
-        let path_length = memoized_collatz.get_path_length(*number);
-        println!("Path length is '{}'", {path_length});
+        memoized_collatz = euler(memoized_collatz);
     }
 
     memoized_collatz.to_file(&opt.graph_filepath);

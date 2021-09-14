@@ -35,10 +35,10 @@ impl MemoizedCollatz {
             self.memory.add_node(number);
         }
         if self.memory.neighbors_directed(number, petgraph::Outgoing).count() > 0 {
-            println!("Cached: {}", {number});
+            // println!("Cached: {}", {number});
             self.memory.neighbors_directed(number, petgraph::Outgoing).next().unwrap()
         } else {
-            println!("Computing: {}", {number});
+            // println!("Computing: {}", {number});
             let next = compute_next(number);
             self.memory.add_node(next);
             self.memory.add_edge(number, next, 1);
