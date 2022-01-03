@@ -1,6 +1,7 @@
 use std::io;
 use std::num;
 use std::path::Path;
+use std::time::Instant;
 
 use collatz::MemoizedCollatz;
 use indicatif::ProgressBar;
@@ -35,9 +36,14 @@ fn interative(mut integers: Vec<u64>, mut collatz: MemoizedCollatz) -> MemoizedC
     }
 
     for number in integers.iter() {
+        let now = Instant::now();
         println!("Finding path length for '{}'", { number });
         let path_length = collatz.get_path_length(*number);
-        println!("Path length is '{}'", { path_length });
+        println!(
+            "Path length is '{}' ({}μs)",
+            path_length,
+            now.elapsed().as_micros()
+        );
     }
     collatz
 }
