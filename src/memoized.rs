@@ -30,25 +30,18 @@ struct Edge {
 
 impl Collatz for MemoizedCollatz {
     fn get_next(&mut self, number: u64) -> u64 {
-        if !self.memory.contains_node(number) {
-            self.memory.add_node(number);
-        }
-        if self
+        let neighbour: Option<u64> = self
             .memory
             .neighbors_directed(number, petgraph::Outgoing)
-            .count()
-            > 0
-        {
-            self.memory
-                .neighbors_directed(number, petgraph::Outgoing)
-                .next()
-                .unwrap()
-        } else {
-            let next = compute_next(number);
-            self.memory.add_node(next);
-            self.memory.add_edge(number, next, 1);
-            next
+            .next();
+        if !neighbour.is_none() {
+            return neighbour.unwrap();
         }
+        self.memory.add_node(number);
+        let next = compute_next(number);
+        self.memory.add_node(next);
+        self.memory.add_edge(number, next, 1);
+        next
     }
 }
 
