@@ -3,13 +3,17 @@ use std::num;
 use std::path::Path;
 use std::time::Instant;
 
-use collatz::MemoizedCollatz;
 use indicatif::ProgressBar;
+use memoized::MemoizedCollatz;
+use naive::NaiveCollatz;
 use structopt::StructOpt;
 
-mod collatz;
 use crate::collatz::Collatz;
-use crate::collatz::FileSerialization;
+use crate::memoized::FileSerialization;
+
+mod collatz;
+pub mod memoized;
+pub mod naive;
 
 fn get_number() -> Result<u64, num::ParseIntError> {
     println!("Input a positive number:");
@@ -26,11 +30,11 @@ fn get_number() -> Result<u64, num::ParseIntError> {
 #[derive(StructOpt)]
 struct Opt {
     #[structopt(short = "f", long)]
-    graph_filepath: String,
+    graph_filepath: Option<String>,
     integers: Vec<u64>,
 }
 
-fn interative(mut integers: Vec<u64>, mut collatz: MemoizedCollatz) -> MemoizedCollatz {
+fn interative(mut integers: Vec<u64>, collatz: &mut impl Collatz) {
     if integers.is_empty() {
         integers = [get_number().unwrap()].to_vec();
     }
@@ -45,10 +49,9 @@ fn interative(mut integers: Vec<u64>, mut collatz: MemoizedCollatz) -> MemoizedC
             now.elapsed().as_micros()
         );
     }
-    collatz
 }
 
-fn euler(mut collatz: MemoizedCollatz) -> MemoizedCollatz {
+fn euler(collatz: &mut impl Collatz) {
     let mut max_path_length = 0;
     let mut number_which_produces_largest_path = 0;
     let progress_bar = ProgressBar::new(1000000);
@@ -65,25 +68,41 @@ fn euler(mut collatz: MemoizedCollatz) -> MemoizedCollatz {
         "Largest path: {}\nNumber which produced it:{}",
         max_path_length, number_which_produces_largest_path
     );
-    collatz
+}
+
+fn naive_main(integers: Vec<u64>) {
+    let mut collatz = NaiveCollatz {};
+    if !integers.is_empty() {
+        interative(integers, &mut collatz);
+    } else {
+        euler(&mut collatz);
+    }
+}
+
+fn memoized_main(path: String, integers: Vec<u64>) {
+    let mut collatz;
+    if Path::new(&path).exists() {
+        println!("Loading graph file");
+        collatz = MemoizedCollatz::from_file(&path);
+    } else {
+        println!("Creating graph from scratch");
+        collatz = MemoizedCollatz::default();
+    }
+
+    if !integers.is_empty() {
+        interative(integers, &mut collatz);
+    } else {
+        euler(&mut collatz);
+    }
+
+    collatz.to_file(&path);
 }
 
 fn main() {
     let opt = Opt::from_args();
-    let mut memoized_collatz;
-    if Path::new(&opt.graph_filepath).exists() {
-        println!("Loading graph file");
-        memoized_collatz = MemoizedCollatz::from_file(&opt.graph_filepath);
+    if opt.graph_filepath.is_none() {
+        naive_main(opt.integers)
     } else {
-        println!("Creating graph from scratch");
-        memoized_collatz = MemoizedCollatz::default();
+        memoized_main(opt.graph_filepath.unwrap(), opt.integers);
     }
-
-    if !opt.integers.is_empty() {
-        memoized_collatz = interative(opt.integers, memoized_collatz);
-    } else {
-        memoized_collatz = euler(memoized_collatz);
-    }
-
-    memoized_collatz.to_file(&opt.graph_filepath);
 }
