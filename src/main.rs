@@ -1,6 +1,6 @@
 use std::io;
-use std::path::Path;
 use std::num;
+use std::path::Path;
 
 use indicatif::ProgressBar;
 use structopt::StructOpt;
@@ -15,7 +15,7 @@ fn get_number() -> Result<u64, num::ParseIntError> {
     io::stdin()
         .read_line(&mut guess)
         .expect("Failed to read line");
-    
+
     let guess: u64 = guess.trim().parse()?;
     Ok(guess)
 }
@@ -24,7 +24,7 @@ fn get_number() -> Result<u64, num::ParseIntError> {
 struct Opt {
     #[structopt(short = "f", long)]
     graph_filepath: String,
-    integers: Vec<u64>
+    integers: Vec<u64>,
 }
 
 fn interative(mut integers: Vec<u64>, mut collatz: MemoizedCollatz) -> MemoizedCollatz {
@@ -33,9 +33,9 @@ fn interative(mut integers: Vec<u64>, mut collatz: MemoizedCollatz) -> MemoizedC
     }
 
     for number in integers.iter() {
-        println!("Finding path length for '{}'", {number});
+        println!("Finding path length for '{}'", { number });
         let path_length = collatz.get_path_length(*number);
-        println!("Path length is '{}'", {path_length});
+        println!("Path length is '{}'", { path_length });
     }
     collatz
 }
@@ -53,7 +53,10 @@ fn euler(mut collatz: MemoizedCollatz) -> MemoizedCollatz {
         progress_bar.inc(1);
     }
     progress_bar.finish();
-    println!("Largest path: {}\nNumber which produced it:{}", max_path_length, number_which_produces_largest_path);
+    println!(
+        "Largest path: {}\nNumber which produced it:{}",
+        max_path_length, number_which_produces_largest_path
+    );
     collatz
 }
 

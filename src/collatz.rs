@@ -1,11 +1,13 @@
 use std::fs::File;
-use std::io::{Write, ErrorKind};
+use std::io::{ErrorKind, Write};
 
 use petgraph::graphmap::DiGraphMap;
 use serde::Deserialize;
 
-pub fn compute_next(number: u64) -> u64{
-    if number <= 1 {return 1;};
+pub fn compute_next(number: u64) -> u64 {
+    if number <= 1 {
+        return 1;
+    };
     if number % 2 == 0 {
         number / 2
     } else {
@@ -14,12 +16,14 @@ pub fn compute_next(number: u64) -> u64{
 }
 
 pub struct MemoizedCollatz {
-    memory: DiGraphMap<u64, u64>
+    memory: DiGraphMap<u64, u64>,
 }
 
 impl Default for MemoizedCollatz {
     fn default() -> Self {
-        MemoizedCollatz{memory: DiGraphMap::new()}
+        MemoizedCollatz {
+            memory: DiGraphMap::new(),
+        }
     }
 }
 
@@ -34,9 +38,17 @@ impl MemoizedCollatz {
         if !self.memory.contains_node(number) {
             self.memory.add_node(number);
         }
-        if self.memory.neighbors_directed(number, petgraph::Outgoing).count() > 0 {
+        if self
+            .memory
+            .neighbors_directed(number, petgraph::Outgoing)
+            .count()
+            > 0
+        {
             // println!("Cached: {}", {number});
-            self.memory.neighbors_directed(number, petgraph::Outgoing).next().unwrap()
+            self.memory
+                .neighbors_directed(number, petgraph::Outgoing)
+                .next()
+                .unwrap()
         } else {
             // println!("Computing: {}", {number});
             let next = compute_next(number);
@@ -71,13 +83,15 @@ impl MemoizedCollatz {
         }
     }
 
-    pub fn from_file(path: &str) -> MemoizedCollatz{
+    pub fn from_file(path: &str) -> MemoizedCollatz {
         let mut reader = csv::Reader::from_path(path).unwrap();
         let mut edges: Vec<(u64, u64)> = Vec::new();
         for record in reader.deserialize() {
             let record: Edge = record.unwrap();
             edges.push((record.a, record.b));
         }
-        MemoizedCollatz{memory: DiGraphMap::from_edges(edges.iter())}
+        MemoizedCollatz {
+            memory: DiGraphMap::from_edges(edges.iter()),
+        }
     }
 }
