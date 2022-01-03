@@ -55,6 +55,7 @@ fn euler(collatz: &mut impl Collatz) {
     let mut max_path_length = 0;
     let mut number_which_produces_largest_path = 0;
     let progress_bar = ProgressBar::new(1000000);
+    let now = Instant::now();
     for number in 0..1000000 {
         let path_length = collatz.get_path_length(number);
         if path_length > max_path_length {
@@ -65,8 +66,10 @@ fn euler(collatz: &mut impl Collatz) {
     }
     progress_bar.finish();
     println!(
-        "Largest path: {}\nNumber which produced it:{}",
-        max_path_length, number_which_produces_largest_path
+        "Largest path: {}\nNumber which produced it: {}\nTime elapsed: {}s",
+        max_path_length,
+        number_which_produces_largest_path,
+        now.elapsed().as_secs()
     );
 }
 
