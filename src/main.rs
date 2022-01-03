@@ -2,11 +2,13 @@ use std::io;
 use std::num;
 use std::path::Path;
 
+use collatz::MemoizedCollatz;
 use indicatif::ProgressBar;
 use structopt::StructOpt;
 
 mod collatz;
-pub use crate::collatz::MemoizedCollatz;
+use crate::collatz::Collatz;
+use crate::collatz::FileSerialization;
 
 fn get_number() -> Result<u64, num::ParseIntError> {
     println!("Input a positive number:");
