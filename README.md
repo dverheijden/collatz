@@ -1,16 +1,20 @@
 # Collatz
 Computation and visualization of collatz paths using Rust and Python
 
-## Rust
-This is mainly a Rust playground project for me to learn some fundamentals.
+## Computation of Collatz paths
+This was mainly a Rust playground project for me to learn some fundamentals like using external crates, a bit about Traits and (de-)serialization.
+So this is probably a very overengineered solution.
 
-I have implemented the [Collatz Conjecture](https://en.wikipedia.org/wiki/Collatz_conjecture) in multiple ways:
-* Naive: Just compute it
-* Memoized: Store collatz paths in a graph data structure and store paths in it
+Anyway, I have implemented the [Collatz Conjecture](https://en.wikipedia.org/wiki/Collatz_conjecture) in multiple ways:
+* Rust Naive: Just compute it
+* Rust Memoized: Store collatz paths in a graph data structure and store paths in it
+* Python Naive: Just compute it
+* Python Memoized: Using an [LRU cache](https://docs.python.org/3/library/functools.html#functools.lru_cache)
 
 I have validated and benchmarked these approaches using [Euler problem 14](https://projecteuler.net/problem=14).
+The results can be found in the [benchmark](#benchmark) section.
 
-### Naive
+### Rust - Naive
 The naive approach just computes
 
 ![collatz](https://wikimedia.org/api/rest_v1/media/math/render/svg/ec22031bdc2a1ab2e4effe47ae75a836e7dea459)
@@ -20,7 +24,7 @@ until ![](https://latex.codecogs.com/svg.image?f(n)%20=%201) (assuming the conje
 When benchmarking this approach, I was already blown away with the performance of Rust (on my macbook pro).
 Computing all paths for all ![](https://latex.codecogs.com/svg.image?n%20%5Cin%20%5B1%20...%201.000.000%5D) took roughly 5 seconds.
 
-### Memoized
+### Rust - Memoized
 Instead of computing the next value for every `n`, we store the path in a graph data structure.
 For this, I used the [`petgraph`](https://github.com/petgraph/petgraph) crate.
 More specifically, I used a directed graph map.
