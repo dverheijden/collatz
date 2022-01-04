@@ -11,3 +11,7 @@ indicatif = "*"
 petgraph = "*"
 serde = { version = "*", features = ["derive"] }
 structopt = "*"
+
+[profile.release]
+opt-level = 3
+overflow-checks = false
