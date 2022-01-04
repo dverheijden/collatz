@@ -28,7 +28,7 @@ More specifically, I used a directed graph map.
 This implementation is as follows:
 1. Get all neighbours of `n` (which is at-most `1`)
 2. If there is a neighbour - return it
-  1. Otherwise, add the $n$ to the graph
+  1. Otherwise, add the `n` to the graph
   2. Compute `f(n)` and insert it into the graph
   3. Insert the resulting edge into the graph
   4. Return `f(n)`
@@ -39,7 +39,7 @@ If we look at the benchmark, we see that this is not the case and it's almost fo
 Now, I expected as much since the computation doesn't really take long and this memoization method is quite naive.
 
 It would be way faster if I would add an edge to `1` with the path length as the edge weight. 
-It might be even faster if I was to only store the path length per $n$.
+It might be even faster if I was to only store the path length per `n`.
 However, for visualization purposes (which is why this type of memoization was chosen in the first place) this wasn't done.
 
 ### Python
